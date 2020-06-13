@@ -1,0 +1,12 @@
+Resources:
+  TodosDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: todoId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: todoId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      TableName: ${self:provider.environment.TODO_TABLE}
