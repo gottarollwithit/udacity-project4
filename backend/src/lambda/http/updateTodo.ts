@@ -4,12 +4,13 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { updateTodo } from '../databaseHelper'
+import { getUserId } from '../utils'
 
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const todoId = event.pathParameters.todoId
   const request: UpdateTodoRequest = JSON.parse(event.body)
-  const todoItem = await updateTodo(request, todoId)
+  const todoItem = await updateTodo(request, todoId, getUserId(event))
 
   return {
     statusCode: 201,

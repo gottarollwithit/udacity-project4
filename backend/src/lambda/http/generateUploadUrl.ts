@@ -4,6 +4,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import * as uuid from 'uuid'
 import * as AWS from 'aws-sdk'
 import { updateImageUrl } from '../databaseHelper'
+import { getUserId } from '../utils'
 
 const todoS3Bucket = process.env.TODO_S3_BUCKET
 const urlExpiration = process.env.SIGNED_URL_EXPIRATION
@@ -24,7 +25,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   const imageUrl = `https://${todoS3Bucket}.s3.amazonaws.com/${imageId}`
 
-  await updateImageUrl(todoId, imageUrl)
+  await updateImageUrl(todoId, getUserId(event), imageUrl)
   return {
     statusCode: 202,
     headers: {

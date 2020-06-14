@@ -6,7 +6,7 @@ import { TodoUpdate } from '../models/TodoUpdate'
 
 const documentClient = new AWS.DynamoDB.DocumentClient()
 const todoTable = process.env.TODO_TABLE
-const indexName = process.env.TODO_USERID_INDEXNAME
+// const indexName = process.env.TODO_USERID_INDEXNAME
 const logger = createLogger('databaseHelper')
 
 
@@ -23,14 +23,15 @@ export const createTodo = async (todoItem: TodoItem) => {
   }
 }
 
-export const getTodo = async (todoId: string): Promise<TodoItem> => {
+export const getTodo = async (todoId: string, userId: string): Promise<TodoItem> => {
   try {
     logger.info('getTodo', todoId)
     const result = await documentClient.query({
       TableName: todoTable,
-      KeyConditionExpression: 'todoId = :todoId',
+      KeyConditionExpression: 'todoId = :todoId and userId = :userId',
       ExpressionAttributeValues: {
-        ':todoId': todoId
+        ':todoId': todoId,
+        ':userId': userId
       }
     }).promise()
     if (result.Items && result.Items.length
@@ -43,13 +44,14 @@ export const getTodo = async (todoId: string): Promise<TodoItem> => {
   }
 }
 
-export const deleteTodo = async (todoId: string) => {
+export const deleteTodo = async (todoId: string, userId: string) => {
   try {
     logger.info('deleteTodo', todoId)
     await documentClient.delete({
       TableName: todoTable,
       Key: {
-        'todoId': todoId
+        'todoId': todoId,
+        'userId': userId
       }
     }).promise()
     return
@@ -64,7 +66,6 @@ export const getTodos = async (userId: string): Promise<TodoItem[]> => {
 
     const result = await documentClient.query({
       TableName: todoTable,
-      IndexName: indexName,
       KeyConditionExpression: 'userId = :userId',
       ExpressionAttributeValues: {
         ':userId': userId
@@ -76,13 +77,14 @@ export const getTodos = async (userId: string): Promise<TodoItem[]> => {
   }
 }
 
-export const updateTodo = async (todoItem: UpdateTodoRequest, todoId: string): Promise<TodoUpdate> => {
+export const updateTodo = async (todoItem: UpdateTodoRequest, todoId: string, userId: string): Promise<TodoUpdate> => {
   try {
     logger.info('updateTodo', todoItem)
     const updatedTodo = await documentClient.update({
       TableName: todoTable,
       Key: {
-        'todoId': todoId
+        'todoId': todoId,
+        'userId': userId
       },
       UpdateExpression: 'set #a = :a, #b = :b, #c = :c',
 
@@ -104,12 +106,12 @@ export const updateTodo = async (todoItem: UpdateTodoRequest, todoId: string): P
   }
 }
 
-export const updateImageUrl = async (todoId: string, imageUrl: string) => {
+export const updateImageUrl = async (todoId: string, userId: string, imageUrl: string) => {
   try {
     logger.info('updateImageUrl', todoId, imageUrl)
     await documentClient.update({
       TableName: todoTable,
-      Key: { todoId: todoId },
+      Key: { todoId: todoId, userId: userId },
       UpdateExpression: 'set attachmentUrl = :url',
       ExpressionAttributeValues: {
         ':url': imageUrl

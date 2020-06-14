@@ -4,7 +4,26 @@ service:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - serverless-reqvalidator-plugin
+  - serverless-aws-documentation
+  - serverless-offline
 
+custom:
+  serverless-offline:
+    httpPort: 4000
+  documentation:
+    api:
+      info:
+        version: v1.0.0
+        title: Serverless Todo
+        description: Serverless application for creating todos
+    models:
+      - name: CreateTodoRequest
+        contentType: application/json
+        schema: ${file(resources/schema/create-todo.json)}
+      - name: UpdateTodoRequest
+        contentType: application/json
+        schema: ${file(resources/schema/update-todo.json)}
 provider:
   name: aws
   runtime:  nodejs12.x
@@ -14,7 +33,7 @@ provider:
 
   environment:
     APP_NAME: udacity-project4
-    TODO_TABLE: Todo-${self:provider.stage}
+    TODO_TABLE: Todos-${self:provider.stage}
     TODO_S3_BUCKET: ${self:provider.environment.APP_NAME}-s3-bucket-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     TODO_USERID_INDEXNAME: todoIserIdIndex
@@ -39,7 +58,6 @@ functions:
           path: todos
           authorizer: Auth
           cors: true
-          reqValidatorName: RequestBodyValidator
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -60,6 +78,11 @@ functions:
           authorizer: Auth
           cors: true
           reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Create New Todo
+            description: Create New Todo
+            requestModels:
+              application/json: CreateTodoRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -76,6 +99,11 @@ functions:
           authorizer: Auth
           cors: true
           reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Update todo
+            description: Update todo
+            requestModels:
+              application/json: UpdateTodoRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -90,7 +118,6 @@ functions:
           path: todos/{todoId}
           authorizer: Auth
           cors: true
-          reqValidatorName: RequestBodyValidator
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -106,7 +133,6 @@ functions:
           path: todos/{todoId}/attachment
           authorizer: Auth
           cors: true
-          reqValidatorName: RequestBodyValidator
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -119,5 +145,6 @@ functions:
         Resource: arn:aws:s3:::${self:provider.environment.TODO_S3_BUCKET}/*
 resources:
   - ${file(resources/gateway-response-default.yml)}
+  - ${file(resources/request-body-validator.yml)}
   - ${file(resources/todo-s3-bucket.yml)}
   - ${file(resources/todo-dynamodb-table.yml)}

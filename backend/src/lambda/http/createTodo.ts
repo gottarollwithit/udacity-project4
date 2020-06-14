@@ -14,18 +14,19 @@ const logger = createLogger('createTodo')
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const parsedTodo: CreateTodoRequest = JSON.parse(event.body)
   const todoId = uuid.v4()
+  const userId = getUserId(event)
   const newTodo: TodoItem = (
     {
       createdAt: new Date().toISOString(),
       done: false,
       todoId: todoId,
-      userId: getUserId(event),
+      userId: userId,
       attachmentUrl: '',
       ...parsedTodo
     }
   )
   await createTodo(newTodo)
-  const todoItem = await getTodo(todoId)
+  const todoItem = await getTodo(todoId, userId)
   logger.info('created TODO: ', todoItem)
 
   return {

@@ -8,13 +8,17 @@ Resources:
         - AttributeName: userId
           AttributeType: S
       KeySchema:
-        - AttributeName: todoId
+        - AttributeName: userId
           KeyType: HASH
+        - AttributeName: todoId
+          KeyType: RANGE
       GlobalSecondaryIndexes:
         - IndexName: ${self:provider.environment.TODO_USERID_INDEXNAME}
           KeySchema:
-            - AttributeName: userId
+            - AttributeName: todoId
               KeyType: HASH
+            - AttributeName: userId
+              KeyType: RANGE
           Projection:
             ProjectionType: ALL # What attributes will be copied to an index
       BillingMode: PAY_PER_REQUEST
