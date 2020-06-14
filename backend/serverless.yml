@@ -17,6 +17,7 @@ provider:
     TODO_TABLE: Todo-${self:provider.stage}
     TODO_S3_BUCKET: ${self:provider.environment.APP_NAME}-s3-bucket-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+    TODO_USERID_INDEXNAME: todoIserIdIndex
     AUTH0_SECRET: _____AUTH0_SECRET____
 
   iamRoleStatements:
@@ -38,12 +39,17 @@ functions:
           path: todos
           authorizer: Auth
           cors: true
+          reqValidatorName: RequestBodyValidator
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Scan
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}/index/${self:provider.environment.TODO_USERID_INDEXNAME}
 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
@@ -53,10 +59,12 @@ functions:
           path: todos
           authorizer: Auth
           cors: true
+          reqValidatorName: RequestBodyValidator
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
+          - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
 
   UpdateTodo:
@@ -67,6 +75,7 @@ functions:
           path: todos/{todoId}
           authorizer: Auth
           cors: true
+          reqValidatorName: RequestBodyValidator
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -81,6 +90,7 @@ functions:
           path: todos/{todoId}
           authorizer: Auth
           cors: true
+          reqValidatorName: RequestBodyValidator
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -96,6 +106,7 @@ functions:
           path: todos/{todoId}/attachment
           authorizer: Auth
           cors: true
+          reqValidatorName: RequestBodyValidator
     iamRoleStatements:
       - Effect: Allow
         Action:

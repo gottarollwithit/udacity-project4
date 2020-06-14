@@ -2,17 +2,7 @@ import dateFormat from 'dateformat'
 import { History } from 'history'
 import update from 'immutability-helper'
 import * as React from 'react'
-import {
-  Button,
-  Checkbox,
-  Divider,
-  Grid,
-  Header,
-  Icon,
-  Input,
-  Image,
-  Loader
-} from 'semantic-ui-react'
+import { Button, Checkbox, Divider, Grid, Header, Icon, Image, Input, Loader } from 'semantic-ui-react'
 
 import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
 import Auth from '../auth/Auth'
@@ -44,7 +34,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     this.props.history.push(`/todos/${todoId}/edit`)
   }
 
-  onTodoCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+  onTodoCreate = async () => {
     try {
       const dueDate = this.calculateDueDate()
       const newTodo = await createTodo(this.props.auth.getIdToken(), {
@@ -52,7 +42,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         dueDate
       })
       this.setState({
-        todos: [...this.state.todos, newTodo],
+        todos: [newTodo, ...this.state.todos],
         newTodoName: ''
       })
     } catch {
@@ -132,7 +122,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
           />
         </Grid.Column>
         <Grid.Column width={16}>
-          <Divider />
+          <Divider/>
         </Grid.Column>
       </Grid.Row>
     )
@@ -180,23 +170,22 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                   color="blue"
                   onClick={() => this.onEditButtonClick(todo.todoId)}
                 >
-                  <Icon name="pencil" />
+                  <Icon name="pencil"/>
                 </Button>
               </Grid.Column>
               <Grid.Column width={1} floated="right">
                 <Button
                   icon
                   color="red"
-                  onClick={() => this.onTodoDelete(todo.todoId)}
-                >
-                  <Icon name="delete" />
+                  onClick={() => this.onTodoDelete(todo.todoId)}>
+                  <Icon name="delete"/>
                 </Button>
               </Grid.Column>
               {todo.attachmentUrl && (
-                <Image src={todo.attachmentUrl} size="small" wrapped />
+                <Image src={todo.attachmentUrl} size="small" wrapped/>
               )}
               <Grid.Column width={16}>
-                <Divider />
+                <Divider/>
               </Grid.Column>
             </Grid.Row>
           )

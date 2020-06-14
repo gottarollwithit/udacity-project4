@@ -1,25 +1,14 @@
 import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
-import * as AWS from 'aws-sdk'
 import { getUserId } from '../utils'
-
-const documentClient = new AWS.DynamoDB.DocumentClient()
-const todoTable = process.env.TODO_TABLE
+import { getTodos } from '../databaseHelper'
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.log('Processing Event: ', event)
 
   const userId = getUserId(event)
-
-  const result = await documentClient.scan({
-    TableName: todoTable,
-    FilterExpression: 'userId = :userId',
-    ExpressionAttributeValues: {
-      ':userId': userId
-    }
-  }).promise()
-  const items = result.Items
+  const items = await getTodos(userId)
 
   return {
     statusCode: 200,
