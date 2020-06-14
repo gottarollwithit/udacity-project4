@@ -4,26 +4,12 @@ service:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
-  - serverless-reqvalidator-plugin
-  - serverless-aws-documentation
   - serverless-offline
 
 custom:
   serverless-offline:
     httpPort: 4000
-  documentation:
-    api:
-      info:
-        version: v1.0.0
-        title: Serverless Todo
-        description: Serverless application for creating todos
-    models:
-      - name: CreateTodoRequest
-        contentType: application/json
-        schema: ${file(resources/schema/create-todo.json)}
-      - name: UpdateTodoRequest
-        contentType: application/json
-        schema: ${file(resources/schema/update-todo.json)}
+
 provider:
   name: aws
   runtime:  nodejs12.x
@@ -77,12 +63,9 @@ functions:
           path: todos
           authorizer: Auth
           cors: true
-          reqValidatorName: RequestBodyValidator
-          documentation:
-            summary: Create New Todo
-            description: Create New Todo
-            requestModels:
-              application/json: CreateTodoRequest
+          request:
+            schema:
+              application/json: ${file(resources/schema/create-todo.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -98,12 +81,9 @@ functions:
           path: todos/{todoId}
           authorizer: Auth
           cors: true
-          reqValidatorName: RequestBodyValidator
-          documentation:
-            summary: Update todo
-            description: Update todo
-            requestModels:
-              application/json: UpdateTodoRequest
+          request:
+            schema:
+              application/json: ${file(resources/schema/update-todo.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -145,6 +125,5 @@ functions:
         Resource: arn:aws:s3:::${self:provider.environment.TODO_S3_BUCKET}/*
 resources:
   - ${file(resources/gateway-response-default.yml)}
-  - ${file(resources/request-body-validator.yml)}
   - ${file(resources/todo-s3-bucket.yml)}
   - ${file(resources/todo-dynamodb-table.yml)}
